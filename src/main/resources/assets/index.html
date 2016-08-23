@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+    <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+    <title>Logeek bar</title>
+
+    <!-- Bootstrap -->
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+    <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+    <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+    <![endif]-->
+</head>
+<body>
+<div class="container-fluid">
+    <div class="page-header">
+        <h1>LoGeek #<span id="id"></span></h1>
+    </div>
+    <div class="row">
+        <div class="col-xs-6"><img id="pizza" src="img/pizza.png" class="img-responsive img-thumbnail"></div>
+        <div class="col-xs-6"><img id="beer" src="img/duff-beer.png" class="img-responsive img-thumbnail"></div>
+    </div>
+</div>
+
+
+<!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+<!-- Include all compiled plugins (below), or include individual files as needed -->
+<script src="js/bootstrap.min.js"></script>
+<script src="js/rx.all.compat.min.js"></script>
+<script>
+    function getRandomIntInclusive(min, max) {
+        return Math.floor(Math.random() * (max - min + 1)) + min;
+    }
+
+    function makeOrder(order) {
+        return $.ajax({
+          type: "POST",
+          url: "api/order",
+          data: JSON.stringify(order),
+          contentType: "application/json"
+        }).promise();
+    }
+
+    function orders(orderRequests, item) {
+        return orderRequests.debounce(500).
+                map(function(p){
+                    return { "id": id, "item": item};
+                }).flatMap(makeOrder);
+    }
+
+    function clicks(id) {
+        return Rx.Observable.fromEvent(document.getElementById(id), 'click');
+    }
+
+    var id = getRandomIntInclusive(1, 10000);
+    document.getElementById('id').innerHTML = id;
+
+    var pizzaClicks = clicks('pizza');
+    var beerClicks = clicks('beer');
+    var pizzaOrdersSubscription = orders(pizzaClicks, "PIZZA").
+                                    subscribe(
+                                        function (order) {
+                                            alert("Enjoy your tasty " + order.menuItem);
+                                        }
+                                    );
+
+    var beerOrdersSubscription = orders(beerClicks, "BEER").
+                                    subscribe(
+                                        function (order) {
+                                            alert("Cold " + order.menuItem);
+                                        }
+                                    );
+
+</script>
+</body>
+</html>

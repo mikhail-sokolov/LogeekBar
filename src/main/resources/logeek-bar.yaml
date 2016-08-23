@@ -1,0 +1,32 @@
+server:
+  type: default
+  maxThreads: 8
+  maxQueuedRequests: 10
+  rootPath: '/api/*'
+  applicationConnectors:
+    - type: http
+      port: 8080
+      acceptorThreads: 1
+      selectorThreads: 2
+  adminConnectors:
+    - type: http
+      port: 8082
+      acceptorThreads: 1
+      selectorThreads: 2
+logging:
+  level: INFO
+  appenders:
+    - type: file
+      currentLogFilename: /devel/luxoft/logeek.log
+      archive: false
+storage:
+  host: localhost
+  port: 8081
+  healthCheckPort: 8083
+  healthCheckPath: '/ping'
+  type: BASIC
+httpClient:
+  timeout: 500ms
+  connectionTimeout: 500ms
+  connectionRequestTimeout: 500ms
+  retries: 0
