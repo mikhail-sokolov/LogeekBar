@@ -10,32 +10,25 @@ import java.util.stream.Stream;
  */
 public class OrderExecutor {
     private ConcurrentLinkedQueue<Order> ordersQueue;
-    private Storage beerStorage;
-    private Storage pizzaStorage;
+    private Storage<Beer> beerStorage;
+    private Storage<Pizza> pizzaStorage;
 
-    public OrderExecutor(ConcurrentLinkedQueue<Order> ordersQueue, Storage beerStorage, Storage pizzaStorage) {
+    public OrderExecutor(ConcurrentLinkedQueue<Order> ordersQueue, Storage<Beer> beerStorage, Storage<Pizza> pizzaStorage) {
         this.ordersQueue = ordersQueue;
         this.beerStorage = beerStorage;
         this.pizzaStorage = pizzaStorage;
     }
 
     public OrderAck proccess(Order order) {
+        ordersQueue.add(order);
         switch (order.getMenuItem()) {
             case BEER:
-                if (!beerStorage.get().isPresent()) {
-                    throw new RuntimeException("We've got issues with beer");
-                }
-                break;
+                return new OrderAck(beerStorage.get().or(new Beer("Beer")), order.getMenuItem());
             case PIZZA:
-                if (!pizzaStorage.get().isPresent()) {
-                    throw new RuntimeException("We've got issues with pizza");
-                }
-                break;
+                return new OrderAck(pizzaStorage.get().or(new Pizza("Pizza")), order.getMenuItem());
             default:
                 throw new IllegalArgumentException("Unknown menu item");
         }
-        ordersQueue.add(order);
-        return new OrderAck(order.getMenuItem());
     }
 
     public TotalOrder totalOrderById(int id) {

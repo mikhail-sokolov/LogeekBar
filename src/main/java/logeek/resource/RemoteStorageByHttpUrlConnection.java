@@ -1,8 +1,6 @@
 package logeek.resource;
 
-import com.google.common.base.Function;
 import com.google.common.base.Optional;
-import com.google.common.base.Supplier;
 import io.dropwizard.jackson.Jackson;
 import logeek.domain.Storage;
 
@@ -10,6 +8,7 @@ import java.io.IOException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.Scanner;
+import java.util.function.Supplier;
 
 
 /**

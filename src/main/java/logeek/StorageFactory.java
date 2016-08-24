@@ -2,10 +2,6 @@ package logeek;
 
 import com.codahale.metrics.health.HealthCheck;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.google.common.base.Optional;
-import com.netflix.hystrix.HystrixCommand;
-import com.netflix.hystrix.HystrixCommandGroupKey;
-import com.netflix.hystrix.HystrixCommandKey;
 import logeek.domain.Beer;
 import logeek.domain.Pizza;
 import logeek.domain.Storage;
@@ -22,6 +18,7 @@ import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.util.function.Supplier;
 
 /**
  * Created by msokolov on 8/21/2016.
@@ -74,6 +71,15 @@ public abstract class StorageFactory implements HasHealthCheck {
         @JsonProperty
         private StorageFactory.Type type;
 
+        private Supplier<Beer> logeekBeer() {
+            return () -> new Beer("LOGEEK Beer");
+        }
+
+        private Supplier<Pizza> logeekPizza() {
+            return () -> new Pizza("LOGEEK Pizza");
+        }
+
+
         public StorageFactory create(HttpClient httpClient) throws MalformedURLException, URISyntaxException {
             URL beerUrl = new URL("http://" + host + ":" + port + "/api/beer");
             URI beerUri = beerUrl.toURI();
@@ -84,24 +90,24 @@ public abstract class StorageFactory implements HasHealthCheck {
                     return new StorageFactory(this) {
                         @Override
                         public Storage<Beer> beerStorage() {
-                            return new RemoteStorageByHttpUrlConnection<>(beerUrl, Beer::new);
+                            return new RemoteStorageByHttpUrlConnection<>(beerUrl, logeekBeer());
                         }
 
                         @Override
                         public Storage<Pizza> pizzaStorage() {
-                            return new RemoteStorageByHttpUrlConnection<>(pizzaUrl, Pizza::new);
+                            return new RemoteStorageByHttpUrlConnection<>(pizzaUrl, logeekPizza());
                         }
                     };
                 case HTTP_CLIENT:
                     return new StorageFactory(this) {
                         @Override
                         public Storage<Beer> beerStorage() {
-                            return new RemoteStorageByHttpClient<>(httpClient, beerUri, Beer::new);
+                            return new RemoteStorageByHttpClient<Beer>(httpClient, beerUri, logeekBeer());
                         }
 
                         @Override
                         public Storage<Pizza> pizzaStorage() {
-                            return new RemoteStorageByHttpClient<>(httpClient, pizzaUri, Pizza::new);
+                            return new RemoteStorageByHttpClient<>(httpClient, pizzaUri, logeekPizza());
                         }
                     };
                 case HYSTRIX:

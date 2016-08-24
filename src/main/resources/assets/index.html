@@ -67,14 +67,14 @@
     var pizzaOrdersSubscription = orders(pizzaClicks, "PIZZA").
                                     subscribe(
                                         function (order) {
-                                            alert("Enjoy your tasty " + order.menuItem);
+                                            alert("Enjoy your tasty " + order.item.name);
                                         }
                                     );
 
     var beerOrdersSubscription = orders(beerClicks, "BEER").
                                     subscribe(
                                         function (order) {
-                                            alert("Cold " + order.menuItem);
+                                            alert("Cold " + order.item.name);
                                         }
                                     );
 

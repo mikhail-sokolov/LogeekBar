@@ -43,7 +43,7 @@ public class GetBeer extends HystrixCommand<Optional<Beer>> {
         if (Jackson.newObjectMapper().readTree(entity.getContent()).path("item").isMissingNode()) {
             return Optional.absent();
         } else {
-            return Optional.of(new Beer());
+            return Optional.of(new Beer("LOGEEK Beer"));
         }
     }
 

@@ -3,6 +3,7 @@ package logeek.resource;
 import com.google.common.base.Optional;
 import com.netflix.hystrix.HystrixCommand;
 import com.netflix.hystrix.HystrixCommandGroupKey;
+import com.netflix.hystrix.HystrixCommandProperties;
 import io.dropwizard.jackson.Jackson;
 import logeek.domain.Pizza;
 import org.apache.http.HttpEntity;
@@ -21,7 +22,12 @@ public class GetPizza extends HystrixCommand<Optional<Pizza>> {
     private final URI uri;
 
     public GetPizza(HttpClient httpClient, URI uri) {
-        super(HystrixCommandGroupKey.Factory.asKey("storage.pizza"));
+        super(
+            Setter.withGroupKey(HystrixCommandGroupKey.Factory.asKey("storage.pizza")).
+                   andCommandPropertiesDefaults(
+                       HystrixCommandProperties.Setter().withCircuitBreakerRequestVolumeThreshold(4)
+                   )
+        );
         this.httpClient = httpClient;
         this.uri = uri;
     }
@@ -43,7 +49,7 @@ public class GetPizza extends HystrixCommand<Optional<Pizza>> {
         if (Jackson.newObjectMapper().readTree(entity.getContent()).path("item").isMissingNode()) {
             return Optional.absent();
         } else {
-            return Optional.of(new Pizza());
+            return Optional.of(new Pizza("LOGEEK Pizza"));
         }
     }
 
